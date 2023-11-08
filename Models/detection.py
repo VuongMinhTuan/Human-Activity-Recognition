@@ -48,28 +48,3 @@ class HumanDectection:
 
 
         return frames_bordered
-    
-
-
-
-
-
-# data = cv2.VideoCapture("C:/Tuan/GitHub/Human-Activity-Recognition/Data/Videos/test.mp4")
-# frame = data.read()[1]
-
-
-# detection = HumanDectection(source= "C:/Tuan/GitHub/Human-Activity-Recognition/Models/YOLOv8/yolov8x6.pt",
-#                             frame= frame)
-
-# results = detection()
-# human_frames = detection.crop_frames(frame, results)
-# human_frames = detection.add_border(human_frames)
-
-
-
-# for f in human_frames:
-#     f = cv2.resize(f, (500, 500))
-#     cv2.imshow("X", f)
-#     cv2.waitKey(1000)
-
-# cv2.destroyAllWindows()
