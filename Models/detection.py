@@ -4,23 +4,15 @@ import cv2
 
 
 class HumanDectection:
-    def __init__(self, source: str, frame: np.ndarray):
+    def __init__(self, frame: np.ndarray, model):
         self.frame = frame
-        self.path = source
+        self.model = model
 
 
     def __call__(self):
-        model = self.load_model(self.path)
-        results = self.predict(model, self.frame)
+        results = self.predict(self.model, self.frame)
 
         return results
-
-
-    def load_model(self, path):
-        model = YOLO(path)
-        model.fuse()
-
-        return model
     
 
     def predict(self, model, frame: np.ndarray) -> np.ndarray:

@@ -1,21 +1,28 @@
 import cv2
 import numpy as np
+from ultralytics import YOLO
 from Modules.video import VideoProcessing
 from Models.detection import HumanDectection
 from Models.heatmap import HeatMap
 
 
 
-
+# Loading video and processing video
 video = VideoProcessing("C:/Tuan/GitHub/Human-Activity-Recognition/Data/Videos/test.mp4", 4, (500, 500))
 data = video()
+
+# Density of heatmap
 density = np.zeros((data[0].shape[0], data[0].shape[1]), dtype=np.float32)
+
+# Loading model
+model = YOLO("C:/Tuan/GitHub/Human-Activity-Recognition/Models/YOLOv8/yolov8n.pt")
+model.fuse()
 
 
 for frame in data:
 
-    detection = HumanDectection(source= "C:/Tuan/GitHub/Human-Activity-Recognition/Models/YOLOv8/yolov8n.pt",
-                                frame= frame)
+    detection = HumanDectection(frame= frame,
+                                model= model)
 
     bounding_boxes = detection()
 
