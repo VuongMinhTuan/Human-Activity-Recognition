@@ -18,16 +18,22 @@ class YOLOv8:
         device: str = "auto",
     ):
         
+        # Set device for model
         if device == "auto":
             device = "cuda" if torch.cuda.is_available() else "cpu"
-
-
-        self.track = track
-        self.model = weight if weight else "C:/Tuan/GitHub/Human-Activity-Recognition/har/yolo/pretrained/yolov8n.pt"
 
         if device == "cpu":
             half = False
 
+
+        # Tracker or Detector
+        self.track = track
+
+        # Load the model
+        source = weight if weight else "C:/Tuan/GitHub/Human-Activity-Recognition/har/yolo/pretrained/yolov8n.pt"
+        self.model = Tracker(source) if self.track else Detector(source)
+
+        # Create arguments map
         self.args_map = {"classes": classes, "conf": conf, "iou": iou, "imgsz": imgsz, "half": half, "device": device}
 
 
@@ -36,12 +42,9 @@ class YOLOv8:
 
 
     def forward(self, frame):
-        
-        # Load the model
-        model = Tracker(self.model) if self.track else Detector(self.model)
 
         # Predict the results
-        results = model.predict
+        results = self.model.predict
 
         # Pass the arguments to model
         results = partial(results, frame, **self.args_map)
@@ -57,15 +60,15 @@ class YOLOv8:
 
 
         # Results of tracking
-        results = model.annotate(results)
+        results = self.model.annotate(results)
 
 
         # Results of detection
         ouputs = []
 
-        bounding_boxes = model.get_bounding_boxes()
-        conf = model.get_conf()
-        bounding_boxes_xywh = model.xyxy_to_xywh(bounding_boxes)
+        bounding_boxes = self.model.get_bounding_boxes()
+        conf = self.model.get_conf()
+        bounding_boxes_xywh = self.model.xyxy_to_xywh(bounding_boxes)
 
         for i in range(len(bounding_boxes)):
             human = {"box": [int(box) for box in bounding_boxes[i].tolist()],
