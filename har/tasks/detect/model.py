@@ -68,3 +68,8 @@ class YOLOv8:
             ouputs.append(human)
 
         return ouputs
+    
+
+
+
+    
