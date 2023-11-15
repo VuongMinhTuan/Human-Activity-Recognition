@@ -1,5 +1,4 @@
-import torch
-from yolo import Detector
+from detectors import Detector
 
 
 
@@ -28,7 +27,7 @@ class Tracker(Detector):
             classes = classes,
             conf = conf,
             iou = iou,
-            size = imgsz,
+            imgsz = imgsz,
             half = half,
             device = device,
             tracker = tracker, 
@@ -37,6 +36,7 @@ class Tracker(Detector):
 
         self._bounding_boxes = results[0].boxes.xyxy
         self._conf = results[0].boxes.conf
+        self._id = results[0].boxes.id
 
         return results
     

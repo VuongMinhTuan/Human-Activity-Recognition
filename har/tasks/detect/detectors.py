@@ -28,7 +28,7 @@ class Detector:
             classes = classes,
             conf = conf,
             iou = iou,
-            size = imgsz,
+            imgsz = imgsz,
             half = half,
             device = device
         )
@@ -60,7 +60,7 @@ class Detector:
         bounding_boxes_xywh = []
 
         for box in xyxy:
-            x1, y1, x2, y2 = box
+            x1, y1, x2, y2 = (int(b.item()) for b in box)
 
             w, h = x2 - x1, y2 - y1
             x, y = w/2, h/2

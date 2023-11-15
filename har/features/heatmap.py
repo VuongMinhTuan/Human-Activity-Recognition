@@ -21,10 +21,9 @@ class HeatMap:
 
     def create_ellipse(self, bounding_boxes: np.ndarray, density: np.ndarray):
         for box in bounding_boxes:
-            x0, y0, x1, y1 = (int(b.item()) for b in box)
-            x, y, w, h = x0, y0, x1-x0, y1-y0
+            x, y, w, h = (int(b.item()) for b in box)
 
-            center = (int(x + w/2), int(y + h/2))
+            center = (x, y)
             size = (int(w/2 * 0.04), int(h/2 * 0.04))
             angle = 0
             startAngle = 0
