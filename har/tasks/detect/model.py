@@ -30,7 +30,7 @@ class YOLOv8:
         self.track = track
 
         # Load the model
-        source = weight if weight else "C:/Tuan/GitHub/Human-Activity-Recognition/har/yolo/pretrained/yolov8n.pt"
+        source = weight if weight else "C:/Tuan/GitHub/Human-Activity-Recognition/har/pretrained/yolov8n.pt"
         self.model = Tracker(source) if self.track else Detector(source)
 
         # Create arguments map
@@ -79,26 +79,3 @@ class YOLOv8:
 
 
         return results if self.track else ouputs
-    
-
-
-
-import cv2
-
-video = cv2.VideoCapture("C:/Tuan/GitHub/Human-Activity-Recognition/data/video/test.mp4")
-
-yolo = YOLOv8(track= True)
-
-while video.isOpened():
-    success, frame = video.read()
-
-    if success:
-        results = yolo(frame)
-
-        cv2.imshow("YOLOv8 tracking", results)
-
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-
-video.release()
-cv2.destroyAllWindows()
