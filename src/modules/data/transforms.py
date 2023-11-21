@@ -4,7 +4,7 @@ from typing import Tuple
 
 
 # Default transformation
-def DEFAULT(img_size: Tuple = (224, 224) | list | int):
+def DEFAULT(img_size: Tuple | list | int = (224, 224)):
     return T.Compose([
         T.ToTensor(),
         T.Resize(img_size),
@@ -13,7 +13,7 @@ def DEFAULT(img_size: Tuple = (224, 224) | list | int):
 
 
 # Convert pytorch tensor to PIL image and apply set of transformations
-def ToPIL(img_size: Tuple = (224, 224) | list | int):
+def ToPIL(img_size: Tuple | list | int = (224, 224)):
     return T.RandomOrder(T.Compose([
         T.ToPILImage(),
         T.Resize(img_size),
@@ -22,7 +22,7 @@ def ToPIL(img_size: Tuple = (224, 224) | list | int):
 
 
 # Customize and apply set of transformations
-def Customize(img_size: Tuple = (224, 224) | list | int):
+def Customize(img_size: Tuple | list | int = (224, 224)):
     return T.Compose([
         T.RandomResizedCrop(img_size, antialias=True),
         T.RandomHorizontalFlip(p=0.69),
