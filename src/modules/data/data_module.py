@@ -1,3 +1,8 @@
+from rootutils import autosetup
+
+# Set up root
+autosetup()
+
 import os
 from transforms import *
 from typing import Tuple, List
@@ -8,13 +13,11 @@ from preprocessing import DataPreprocessing
 from src.modules.utils import workers_handler
 
 
-
-
 class DataModule(LightningDataModule):
     def __init__(
         self,
-        dataset_url: str | None,
         dataset_path: str,
+        dataset_url = None,
         image_size: Tuple[int, int] | list = (224, 224),
         batch_size: int = 32,
         num_workers: int = 0,
@@ -28,8 +31,8 @@ class DataModule(LightningDataModule):
         self.argument_level = argument_level
 
         self.data_config = {
-            "dataset_url": dataset_url,
             "dataset_path" : dataset_path,
+            "dataset_url": dataset_url,
             "image_size" : image_size
         }
         
@@ -112,8 +115,3 @@ class DataModule(LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(dataset= self.test_data, **self.loader_config, shuffle=False)
-    
-
-
-
-test = DataModule(dataset_path= "C:/Tuan/GitHub/Human-Activity-Recognition/data/image/dataset")

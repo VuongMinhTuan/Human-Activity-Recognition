@@ -6,3 +6,4 @@ opencv-python
 ultralytics
 lightning
 split-folders
+rootutils
