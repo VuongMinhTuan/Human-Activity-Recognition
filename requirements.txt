@@ -1,8 +1,8 @@
 numpy
-rich
 torch
 torchvision
 torchmetrics
 opencv-python
 ultralytics
 lightning
+split-folders

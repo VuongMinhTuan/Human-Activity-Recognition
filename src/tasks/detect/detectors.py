@@ -5,10 +5,10 @@ from ultralytics import YOLO
 
 class Detector:
     def __init__(self, source):
-        self._model = YOLO(source)
-        self._bounding_boxes = torch.Tensor()
-        self._conf = torch.Tensor()
-        self._id = torch.Tensor()
+        self.model = YOLO(source)
+        self.bounding_boxes = torch.Tensor()
+        self.conf = torch.Tensor()
+        self.id = torch.Tensor()
 
 
     # Predict objects
@@ -23,7 +23,7 @@ class Detector:
         device
     ):
         
-        results = self._model.predict(
+        results = self.model.predict(
             source = frame,
             classes = classes,
             conf = conf,
@@ -33,26 +33,26 @@ class Detector:
             device = device
         )
 
-        self._bounding_boxes = results[0].boxes.xyxy
-        self._conf = results[0].boxes.conf
-        self._id = results[0].boxes.id
+        self.bounding_boxes = results[0].boxes.xyxy
+        self.conf = results[0].boxes.conf
+        self.id = results[0].boxes.id
 
         return results
     
 
     # Get the bounding boxes with xyxy format
     def get_bounding_boxes(self):
-        return self._bounding_boxes
+        return self.bounding_boxes
     
 
     # Get the confidence scores of detected objects
     def get_conf(self):
-        return self._conf
+        return self.conf
     
 
     # Get the id of detected objects
     def get_id(self):
-        return self._id
+        return self.id
     
 
     # Convert the bounding boxes from xyxy format to xywh format

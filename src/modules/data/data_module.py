@@ -1,9 +1,11 @@
-import requests
-import zipfile
-from pathlib import Path
+import os
 from transforms import *
-from typing import Tuple
+from typing import Tuple, List
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader, ConcatDataset
 from pytorch_lightning import LightningDataModule
+from preprocessing import DataPreprocessing
+from src.modules.utils import workers_handler
 
 
 
@@ -11,59 +13,107 @@ from pytorch_lightning import LightningDataModule
 class DataModule(LightningDataModule):
     def __init__(
         self,
-        data_path: str,
+        dataset_url: str | None,
+        dataset_path: str,
+        image_size: Tuple[int, int] | list = (224, 224),
         batch_size: int = 32,
-        img_size: Tuple[int, int] | list = (224, 224),
         num_workers: int = 0,
-        pin_memory: bool = True
+        pin_memory: bool = True,
+        argument_level: int = 0
     ):
         
         # Initialize the parent class
         super().__init__()
 
-        self.data_path = Path(data_path)
-        self.img_size = img_size
+        self.argument_level = argument_level
+
+        self.data_config = {
+            "dataset_url": dataset_url,
+            "dataset_path" : dataset_path,
+            "image_size" : image_size
+        }
         
         self.loader_config = {
             "batch_size": batch_size,
-            "num_workers": num_workers,
+            "num_workers": workers_handler(num_workers),
             "pin_memory": pin_memory,
         }
 
 
+    
+    # Get classes
+    @property
+    def classes(self) -> List[str]:
+        return sorted(os.listdir(os.path.join(self.data_config['dataset_path'], "train")))
+    
 
-    # Check the directory
+    # Check data directory is existed or not
     def __check_dir(self):
-        return True if (self.data_path / "CoffeeStore").is_dir() else False
+        return True if not os.path.exists(self.data_config['data_path']) else False
+    
+
+    def setup(self, stage: str):
+        if not self.__check_dir():
+            prepare = DataPreprocessing(
+                dataset_url= "https://drive.google.com/file/d/1USFmkMyZ0bRCKcuzq9kjdQiCkfbEC1iZ/view?usp=sharing" 
+                if self.data_config['dataset_url'] is None 
+                else self.data_config['dataset_url'],
+                
+                dataset_path= self.data_config['dataset_path'],
+                ratios= (0.7, 0.15, 0.15)
+            )
+
+            prepare()
 
 
-    # Load data
-    def create(self):
-        path = self.data_path / "CoffeeStore"
+        # Get all transform levels
+        transfrom_levels = {
+            i: getattr(DataTransform, f"argument_lv{i}") for i in range(6)
+        }
+
+
+        if self.argument_level not in transfrom_levels:
+            raise ValueError (
+                "Use 0 for the default transformation or scale up to 5 for the strongest effect"
+            )
         
-        if self.__check_dir():
-            print(f"{path} directory exists.")
-            return
-        
-        print(f"Did not find {path} directory, creating one...")
-        self.data_path.mkdir(parents=True, exist_ok=True)
 
-        # Download coffee store data
-        with open(self.data_path / "CoffeeStore.zip", "wb") as f:
-            request = requests.get("https://drive.google.com/file/d/1rrZiQroQqxrNgeptIVmGKxCrv27pLl-9/view?usp=drive_link")
-            print("Downloading coffee store data...")
-            f.write(request.content)
-            print("Downloaded the coffee store data successfully!!!")
-        
-        # Unzip pizza, steak, sushi data
-        with zipfile.ZipFile(self.data_path / "CoffeeStore.zip", "r") as zip_ref:
-            print("Unzipping coffee store data...") 
-            zip_ref.extractall(self.data_path / "CoffeeStore")
-            print("Unzipped the coffee store data successfully!!!")
+        # Create dataset included train, validation and test dataset
+        self.train_data = ImageFolder(
+            os.path.join(self.data_config['dataset_path'], "train"),
+            transform= transfrom_levels[self.argument_level](self.data_config['image_size'])
+        )
+
+        self.val_data = ImageFolder(
+            os.path.join(self.data_config['dataset_path'], "val"),
+            transform= transfrom_levels[self.argument_level](self.data_config['image_size'])
+        )
+
+        self.test_data = ImageFolder(
+            os.path.join(self.data_config['dataset_path'], "test"),
+            transform= transfrom_levels[self.argument_level](self.data_config['image_size'])
+        )
+
+        self.dataset = ConcatDataset(
+            [self.train_data, self.val_data, self.test_data]
+        )
+
+        if stage == "fit":
+            print(f"[bold]Data path:[/] [green]{self.data_config['data_path']}[/]")
+            print(f"[bold]Number of data:[/] {len(self.dataset):,}")
+            print(f"[bold]Number of classes:[/] {len(self.classes):,}")
+
+
+    def train_dataloader(self):
+        return DataLoader(dataset= self.train_data, **self.loader_config, shuffle=True)
+
+    def val_dataloader(self):
+        return DataLoader(dataset= self.val_data, **self.loader_config, shuffle=False)
+
+    def test_dataloader(self):
+        return DataLoader(dataset= self.test_data, **self.loader_config, shuffle=False)
+    
 
 
 
-data_path = Path("C:/Tuan/GitHub/Human-Activity-Recognition/data")
-
-test = DataModule(data_path)
-test.create()
+test = DataModule(dataset_path= "C:/Tuan/GitHub/Human-Activity-Recognition/data/image/dataset")
