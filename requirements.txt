@@ -7,3 +7,4 @@ ultralytics
 lightning
 split-folders
 rootutils
+rich

@@ -4,7 +4,7 @@ from src.modules.utils import tuple_handler
 
 
 
-class DataTransform:
+class DataTransformation:
 
     # Default transformation
     @staticmethod

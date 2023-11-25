@@ -1,8 +1,3 @@
-from rootutils import autosetup
-
-# Set up root
-autosetup()
-
 import os
 from transforms import *
 from typing import Tuple, List
@@ -11,6 +6,8 @@ from torch.utils.data import DataLoader, ConcatDataset
 from pytorch_lightning import LightningDataModule
 from preprocessing import DataPreprocessing
 from src.modules.utils import workers_handler
+
+
 
 
 class DataModule(LightningDataModule):
@@ -71,7 +68,7 @@ class DataModule(LightningDataModule):
 
         # Get all transform levels
         transfrom_levels = {
-            i: getattr(DataTransform, f"argument_lv{i}") for i in range(6)
+            i: getattr(DataTransformation, f"argument_lv{i}") for i in range(6)
         }
 
 
@@ -83,17 +80,17 @@ class DataModule(LightningDataModule):
 
         # Create dataset included train, validation and test dataset
         self.train_data = ImageFolder(
-            os.path.join(self.data_config['dataset_path'], "train"),
+            root= os.path.join(self.data_config['dataset_path'], "train"),
             transform= transfrom_levels[self.argument_level](self.data_config['image_size'])
         )
 
         self.val_data = ImageFolder(
-            os.path.join(self.data_config['dataset_path'], "val"),
+            root= os.path.join(self.data_config['dataset_path'], "val"),
             transform= transfrom_levels[self.argument_level](self.data_config['image_size'])
         )
 
         self.test_data = ImageFolder(
-            os.path.join(self.data_config['dataset_path'], "test"),
+            root= os.path.join(self.data_config['dataset_path'], "test"),
             transform= transfrom_levels[self.argument_level](self.data_config['image_size'])
         )
 

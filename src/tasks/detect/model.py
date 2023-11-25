@@ -3,6 +3,7 @@ from detectors import Detector
 from trackers import Tracker
 from typing import Tuple
 from functools import partial
+from modules.utils import device_handler
 
 
 class YOLOv8:
@@ -18,9 +19,9 @@ class YOLOv8:
         device: str = "auto",
     ):
         
-        # Set device for model
-        if device == "auto":
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+        # Handle device of model
+        device = device_handler(device)
+        
 
         if device == "cpu":
             half = False

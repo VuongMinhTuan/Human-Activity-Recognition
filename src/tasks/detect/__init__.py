@@ -1,3 +1,6 @@
-from .detectors import Detector
-from .trackers import Tracker
+from .detector import Detector
+from .tracker import Tracker
 from .model import YOLOv8
+
+
+__all__ = ["Detector", "Tracker", "YOLOv8"]
