@@ -1,10 +1,18 @@
-numpy
-torch
-torchvision
-torchmetrics
-opencv-python
-ultralytics
-lightning
-split-folders
+# essensial
+numpy>=1.26.0
+
+# torch
+torch>=2.0.0
+torchvision>=0.15.0
+lightning>=2.0.0
+torchmetrics>=1.2.0
+
+# yolo-v8
+ultralytics>=8.0.2
+
+# image
+opencv-python>=4.8.0
+
+
+# others
 rootutils
-rich
