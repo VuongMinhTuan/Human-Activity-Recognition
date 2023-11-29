@@ -2,7 +2,10 @@ import cv2, os, splitfolders, psutil, numpy as np
 from typing import List, Tuple, Union
 from pathlib import Path
 from PIL import Image
+from rich import print
+from src.modules.utils import tuple_handler
 from tqdm.contrib.concurrent import process_map
+from tqdm import tqdm
 
 
 
@@ -16,7 +19,7 @@ class ImageProcessing:
         size: Union[int, List[int], Tuple[int]]
     ) -> np.ndarray:
         
-        return cv2.resize(image, size)
+        return cv2.resize(image, tuple_handler(size, 2))
     
 
     # Adds a border around a given video frame to make it a square frame
@@ -98,7 +101,7 @@ class VideoProcessing:
     #  Resize each frame of video to the specified dimensions
     @staticmethod
     def resize(video: Union[np.ndarray, List[np.ndarray]], size: Union[int, List[int], Tuple[int]]):
-        return [cv2.resize(frame, size) for frame in video]
+        return [cv2.resize(frame, tuple_handler(size, 2)) for frame in video]
     
 
 
@@ -146,8 +149,8 @@ class DataPreprocessing:
     def __process_data(self, path: str) -> List[np.ndarray]:
         video = VideoProcessing.load(path)
 
-        if self.cfg['sampling'] != 0:
-            video = VideoProcessing.sampling(np.array(video), self.cfg['sampling'])
+        if self.cfg['sampling_value'] != 0:
+            video = VideoProcessing.sampling(np.array(video), self.cfg['sampling_value'])
         
         if self.cfg['max_frame'] != 0:
             video = VideoProcessing.truncating(np.array(video), self.cfg['max_frame'])
@@ -187,10 +190,10 @@ class DataPreprocessing:
     def auto(self, save_folder: str= None):
         # Create folder for images of dataset
         if save_folder is None:
-            self.cfg["save_dir"] = Path(self.cfg["save_dir"]).joinpath(self.cfg['folder_name'] + "_images").as_posix()
+            self.cfg["save_dir"] = str(Path(self.cfg["save_dir"]).joinpath(self.cfg['folder_name'] + "_images"))
             os.makedirs(self.cfg["save_dir"], exist_ok= True)
         else:
-            self.cfg["save_dir"] = Path(self.cfg["save_dir"]).joinpath(save_folder).as_posix()
+            self.cfg["save_dir"] = str(Path(self.cfg["save_dir"]).joinpath(save_folder))
             os.makedirs(self.cfg["save_dir"], exist_ok= True)
 
 
@@ -200,13 +203,16 @@ class DataPreprocessing:
         print(f"  Data path: [green]{self.cfg['dataset_dir']}[/]")
         print(f"  Save path: [green]{self.cfg['save_dir']}[/]")
 
+
         # Calcute chunksize base on cpu parallel power
         benchmark = lambda x: max(
             1, round(len(x) / (self.cfg['num_workers'] * psutil.cpu_freq().max / 1000) / 4)
         )
 
+
         # Generate data
         print("\n[bold][yellow]Generating data...[/][/]")
+
 
         video_paths = [
             str(video)
@@ -214,11 +220,17 @@ class DataPreprocessing:
             for video in Path(self.cfg['dataset_dir']).rglob("*" + ext)
         ]
 
+        
         process_map(
             self.__generate_frame,
             video_paths,
             max_workers= self.cfg['num_workers'],
-            chunksize= benchmark(video_paths),
+            chunksize= benchmark(video_paths)
         )
+
+
+        # for p in tqdm(video_paths):
+        #     self.__generate_frame(p)
+
 
         print("\n[bold][green]Processing data complete.[/][/]")

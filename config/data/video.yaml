@@ -10,10 +10,10 @@ dataset_dir: C:\Tuan\Documents\test\UTD
 save_dir: C:\Tuan\Documents\test
 
 # Ratio for spliting dataset
-ratio: (0.7, 0.15, 0.15)
+ratio: [0.7, 0.15, 0.15]
 
 # Size of image
-image_size: (224, 224)
+image_size: [224, 224]
 
 # Vaue for sampling video
 sampling_value: 4
