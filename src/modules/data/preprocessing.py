@@ -5,19 +5,36 @@ from PIL import Image
 from rich import print
 from src.modules.utils import tuple_handler
 from tqdm.contrib.concurrent import process_map
-from tqdm import tqdm
 
 
 
 
 
 class ImageProcessing:
+    # Load image
+    @staticmethod
+    def load(path: str):
+        # Check directory if it existed
+        if not os.path.exists(path):
+            raise FileExistsError("File is not found!!!")
+        
+        # Load image
+        image = cv2.imread(path)
+
+        # Check image
+        if image is None:
+            raise RuntimeError("Could not load the image file!!!")
+
+        return image
+    
+
+
     # Resize image to the specified dimensions
     @staticmethod
     def resize(
         image: np.ndarray,
         size: Union[int, List[int], Tuple[int]]
-    ) -> np.ndarray:
+    ):
         
         return cv2.resize(image, tuple_handler(size, 2))
     
@@ -26,7 +43,7 @@ class ImageProcessing:
     @staticmethod
     def add_border(
         image: np.ndarray, border_color: Tuple | int = (0, 0, 0)
-    ) -> np.ndarray:
+    ):
        
         img_h, img_w = image.shape[:2]
         target_size = max(img_h, img_w)
@@ -43,6 +60,7 @@ class ImageProcessing:
             cv2.BORDER_CONSTANT,
             border_color,
         )
+    
 
 
 
@@ -106,17 +124,42 @@ class VideoProcessing:
 
 
 
-
 class DataPreprocessing:
     def __init__(self, **kwargs):
         self.cfg = kwargs
-        self.classes = os.listdir(self.cfg['dataset_dir'])
-        self.extensions = [".mp4", ".avi", ".mkv", ".mov", ".flv", ".mpg"]
 
 
     def __call__(self, save_folder: str= None):
-        return self.auto(save_folder)
+        if os.path.exists(os.path.join(self.cfg['dataset_dir'], "train")):
+            raise RuntimeError("The Dataset is processed!!!")
         
+        return self.auto(save_folder)
+    
+
+    # Classes of dataset
+    @property
+    def classes(self):
+        return sorted(os.listdir(self.cfg['dataset_dir']))
+            
+    
+
+    # Process image
+    def process_image(self, path: str) -> np.ndarray:
+        image = ImageProcessing.load(path)
+
+        file_name = path.split('/')[-1]
+
+        result = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        if self.cfg['image_size']:
+            result = ImageProcessing.resize(image, self.cfg['image_size'])
+
+        result = ImageProcessing.add_border(image)
+
+        os.remove(file_name)
+
+        cv2.imwrite(file_name, result)
+    
 
     # Split dataset into train, validation and test dataset
     def split_data(self, input_folder: str, output_folder: str):
@@ -126,27 +169,39 @@ class DataPreprocessing:
         
         if not os.path.exists(output_folder):
             os.mkdir(output_folder)
-
+        
 
         # Find the number of validation and test files in dataset
-        fixed = tuple(int(min(
-            [os.listdir(Path.joinpath(self.cfg['dataset_dir'], cls)).__len__() for cls in self.classes]
-        ) * self.cfg['ratio'][1:]))
-
-
-        splitfolders.fixed(
-            input= input_folder,
-            output= output_folder,
-            seed= 1337,
-            fixed= fixed,
-            oversample= False,
-            group_prefix= None,
-            move= False
+        fixed = tuple(
+            [
+                int(
+                    min(
+                        [os.listdir(Path("C:/Tuan/Documents/test/image").joinpath(cls)).__len__() for cls in self.classes]
+                    ) * r
+                )
+                for r in self.cfg['ratio'][1:]
+            ]
         )
+        
+
+        try:
+            splitfolders.fixed(
+                input= input_folder,
+                output= output_folder,
+                seed= 1337,
+                fixed= fixed,
+                oversample= False,
+                group_prefix= None,
+                move= False
+            )
+        except:
+            raise RuntimeError("Can not split the dataset!!!")
+        
+        return True
 
 
-    # Process dataset
-    def __process_data(self, path: str) -> List[np.ndarray]:
+    # Process video
+    def process_video(self, path: str) -> List[np.ndarray]:
         video = VideoProcessing.load(path)
 
         if self.cfg['sampling_value'] != 0:
@@ -165,7 +220,7 @@ class DataPreprocessing:
     
 
     # Generate frames from video
-    def __generate_frame(self, path: str):
+    def generate_frame(self, path: str):
         # Check directory if it existed
         if not os.path.exists(path):
             raise FileExistsError("File is not found.")
@@ -177,7 +232,7 @@ class DataPreprocessing:
         dst_path = Path(self.cfg["save_dir"])
 
         # Process dataset
-        video = self.__process_data(path)
+        video = self.process_video(path)
 
         for i, frame in enumerate(video):
             save_path = os.path.join(dst_path, f"{file_name}_{i}.jpg")
@@ -185,6 +240,12 @@ class DataPreprocessing:
             if not os.path.exists(save_path):
                 image = Image.fromarray(frame)
                 image.save(save_path)
+
+
+    
+    # Check file is video or image
+    def check_format(self):
+        return "video" if Path(os.listdir(self.cfg['dataset_dir'])[0]).suffix in self.cfg['video_extensions'] else "image"
 
 
     def auto(self, save_folder: str= None):
@@ -210,27 +271,45 @@ class DataPreprocessing:
         )
 
 
-        # Generate data
         print("\n[bold][yellow]Generating data...[/][/]")
 
 
-        video_paths = [
-            str(video)
-            for ext in self.extensions
-            for video in Path(self.cfg['dataset_dir']).rglob("*" + ext)
-        ]
-
-        
-        process_map(
-            self.__generate_frame,
-            video_paths,
-            max_workers= self.cfg['num_workers'],
-            chunksize= benchmark(video_paths)
-        )
+        if self.check_format() == "image":
+            image_paths = [
+                str(image)
+                for cls in self.classes
+                for ext in self.cfg['image_extensions']
+                for image in Path(self.cfg['dataset_dir']).joinpath(cls).rglob("*" + ext)
+            ]
 
 
-        # for p in tqdm(video_paths):
-        #     self.__generate_frame(p)
+            # Process image
+            process_map(
+                self.process_image,
+                image_paths,
+                max_workers= self.cfg['num_workers'],
+                chunksize= benchmark(image_paths)
+            )
 
+            print("\n[bold][green]Processing data successfully!!!")
 
-        print("\n[bold][green]Processing data complete.[/][/]")
+            # Split dataset
+            if self.split_data(self.cfg['dataset_dir'], self.cfg['save_dir']):
+                print("\n[bold][green]Splitting dataset successfully!!!")
+        else:
+            video_paths = [
+                str(video)
+                for ext in self.cfg['video_extensions']
+                for video in Path(self.cfg['dataset_dir']).rglob("*" + ext)
+            ]
+
+            
+            # Generate data
+            process_map(
+                self.generate_frame,
+                video_paths,
+                max_workers= self.cfg['num_workers'],
+                chunksize= benchmark(video_paths)
+            )
+
+        print("\n[bold][green]Complete preprocessing!!![/][/]")

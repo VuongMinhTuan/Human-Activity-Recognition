@@ -1,16 +1,22 @@
 ### This folder contains configuration###
 
 # Name of dataset
-folder_name: UTD
+folder_name: image
 
 # Directory for loading dataset
-dataset_dir: C:\Tuan\Documents\test\UTD
+dataset_dir: C:\Tuan\Documents\test\image
 
 # Directory for saving results after processing dataset
 save_dir: C:\Tuan\Documents\test
 
 # Ratio for spliting dataset
 ratio: [0.7, 0.15, 0.15]
+
+# Extensions of image
+image_extensions: [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"]
+
+# Extensions of video
+video_extensions: [".mp4", ".avi", ".mkv", ".mov", ".flv", ".mpg"]
 
 # Size of image
 image_size: [224, 224]

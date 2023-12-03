@@ -7,7 +7,7 @@ from torch import Tensor
 class DataTransformation:
     # Apply a default set of image transformations to the input image
     @staticmethod
-    def DEFAULT(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def default(image_size: Tuple | list | int = (224, 224)) -> Tensor:
         return T.Compose(
             [
                 T.Resize(image_size, antialias=True),
@@ -19,7 +19,7 @@ class DataTransformation:
 
     # Convert a PyTorch tensor to a PIL image and apply a series of image transformations.
     @staticmethod
-    def TOPIL(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def toPIL(image_size: Tuple | list | int = (224, 224)) -> Tensor:
         return T.Compose(
             [
                 T.ToPILImage(),
@@ -32,7 +32,7 @@ class DataTransformation:
 
     # Apply a default set of image transformations to the input image
     @staticmethod
-    def AUGMENT_LV0(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def argument_0(image_size: Tuple | list | int = (224, 224)) -> Tensor:
           return T.Compose(
             [
                 T.Resize(image_size, antialias=True),
@@ -44,7 +44,7 @@ class DataTransformation:
 
     # Apply a common set of image transformations to the input image
     @staticmethod
-    def AUGMENT_LV1(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def argument_1(image_size: Tuple | list | int = (224, 224)) -> Tensor:
         return T.Compose(
             [
                 T.RandomResizedCrop(image_size, antialias=True),
@@ -60,7 +60,7 @@ class DataTransformation:
     
     # Apply a medium set of image transformations to the input image.
     @staticmethod
-    def AUGMENT_LV2(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def argument_2(image_size: Tuple | list | int = (224, 224)) -> Tensor:
         return T.Compose(
             [
                 T.RandomResizedCrop(image_size, antialias=True),
@@ -79,7 +79,7 @@ class DataTransformation:
 
     # Apply a big set of image transformations to the input image
     @staticmethod
-    def AUGMENT_LV3(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def argument_3(image_size: Tuple | list | int = (224, 224)) -> Tensor:
         return T.Compose(
             [
                 T.RandomResizedCrop(image_size, antialias=True),
@@ -100,7 +100,7 @@ class DataTransformation:
 
     # Apply a huge set of image transformations to the input image
     @staticmethod
-    def AUGMENT_LV4(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def argument_4(image_size: Tuple | list | int = (224, 224)) -> Tensor:
         return T.Compose(
             [
                 T.RandomResizedCrop(image_size, antialias=True),
@@ -123,7 +123,7 @@ class DataTransformation:
 
     # Apply a massive set of image transformations to the input image
     @staticmethod
-    def AUGMENT_LV5(image_size: Tuple | list | int = (224, 224)) -> Tensor:
+    def argument_5(image_size: Tuple | list | int = (224, 224)) -> Tensor:
         return T.Compose(
             [
                 T.RandomResizedCrop(image_size, antialias=True),

@@ -1,9 +1,13 @@
 from src.modules.data.preprocessing import DataPreprocessing
 from src.modules.utils import load_yaml
 
+def main():
+    config = load_yaml("C:/Tuan/GitHub/Human-Activity-Recognition/config/data/preprocessing.yaml")
 
-config = load_yaml("C:/Tuan/GitHub/Human-Activity-Recognition/config/data/video.yaml")
+    data = DataPreprocessing(**config)
 
-data = DataPreprocessing(**config)
+    data("dataset")
 
-data()
+
+if __name__ == "__main__":
+    main()
