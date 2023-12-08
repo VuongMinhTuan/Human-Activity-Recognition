@@ -22,5 +22,5 @@ def scheduler_with_warmup(scheduler: Optimizer, warmup_epochs: int, start_factor
     return SequentialLR(
         optimizer = scheduler.optimizer,
         schedulers = [warmup_scheduler, scheduler],
-        milestones = [warmup_epochs+1]
+        milestones = [warmup_epochs + 1]
     )

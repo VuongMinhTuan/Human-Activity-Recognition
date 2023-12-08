@@ -27,14 +27,14 @@ def main(cfg: Dict):
 
     # Define dataset
     DATASET = DataModule(
-        **load_yaml("C:/Tuan/GitHub/Human-Activity-Recognition/config/modules/data_module.yaml")
+        **cfg["data"]
     )
 
 
     # Define model
     MODEL = VIT(
         num_classes= len(DATASET.classes),
-        **load_yaml("C:/Tuan/GitHub/Human-Activity-Recognition/config/classifiers/vit.yaml")
+        **cfg["model"]
     )
 
 
@@ -43,8 +43,8 @@ def main(cfg: Dict):
 
     OPTIMIZER = optim.AdamW(
         MODEL.parameters(),
-        lr= cfg["learning_rate"],
-        weight_decay= cfg["learning_rate"]
+        lr= cfg["trainer"]["learning_rate"],
+        weight_decay= cfg["trainer"]["learning_rate"]
     )
 
 
@@ -52,10 +52,10 @@ def main(cfg: Dict):
     SCHEDULER = scheduler_with_warmup(
         scheduler= optim.lr_scheduler.CosineAnnealingLR(
             optimizer= OPTIMIZER,
-            T_max= cfg["num_epoch"]
+            T_max= cfg["trainer"]["num_epoch"]
         ),
 
-        **load_yaml("C:/Tuan/GitHub/Human-Activity-Recognition/config/modules/scheduler.yaml")
+        **cfg["scheduler"]
     )
 
 
@@ -65,14 +65,17 @@ def main(cfg: Dict):
         criterion= LOSS,
         optimizer= OPTIMIZER,
         scheduler= SCHEDULER,
-        checkpoint= cfg["checkpoint"]
+        checkpoint= cfg["trainer"]["checkpoint"]
     )
 
 
+    # Save hyperparameters
+    LIT_MODULE.save_hparams(cfg)
+
     # Trainer
     TRAINER = Trainer(
-        max_epochs= cfg["num_epoch"],
-        precision= cfg["precision"],
+        max_epochs= cfg["trainer"]["num_epoch"],
+        precision= cfg["trainer"]["precision"],
         callbacks= custom_callbacks(),
         logger= TensorBoardLogger(save_dir= "C:/Tuan/GitHub/Human-Activity-Recognition/logs")
     )

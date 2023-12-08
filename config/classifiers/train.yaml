@@ -4,17 +4,66 @@
 # Set global seed
 set_seed: 42
 
-# Batch size of dataset
-batch_size: 156
 
-# Learning rate for training
-learning_rate: 0.0000001
+# Data Module configuration
+data:
+  # Directory for loading dataset
+  dataset_dir: C:/Tuan/Documents/dataset
 
-# Number of epoches for training
-num_epoch: 100
+  # Level of dataset tranformation
+  argument_level: 0
 
-# Check if load the trained model
-checkpoint: null
+  # Size of image
+  image_size: [224, 224]
 
-# Precision handling
-precision: bf16-mixed
+  # Number of samples processed before the model is updated
+  batch_size: 32
+
+  # Number of cpu units
+  num_workers: 8
+
+  # Push dataset to GPU during the training
+  pin_memory: True
+
+
+# Model configuration
+model:
+  # Version of model
+  version: "B_32"
+
+  # Ratio for droping out neurals
+  dropout: 0.0
+
+  # Ratio for droping out neural in attention layer
+  attention_dropout: 0.0
+
+  # Check model if is pretrained
+  pretrained: True
+
+  # Freeze features layer
+  freeze: False
+
+
+# Scheduler configuration
+scheduler:
+  warmup_epochs: 10
+  start_factor: 0.01
+
+
+
+# Trainer configuration
+trainer:
+  # Batch size of dataset
+  batch_size: 156
+
+  # Learning rate for training
+  learning_rate: 0.0000001
+
+  # Number of epochs for training
+  num_epoch: 100
+
+  # Check if load the trained model
+  checkpoint: null
+
+  # Precision handling
+  precision: bf16-mixed

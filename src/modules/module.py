@@ -30,9 +30,6 @@ class LitModule(LightningModule):
         if checkpoint:
             self.load(checkpoint, device= device)
 
-        # Save hyperparameters
-        self.save_hyperparameters()
-
 
     # Run dataset through model only
     def forward(self, X):
@@ -116,3 +113,9 @@ class LitModule(LightningModule):
         )
 
         print("[bold][green]Load checkpoint successfully!!!") if verbose else None
+
+    
+    # Save hyperparameters
+    def save_hparams(self, config: Dict) -> None:
+        self.hparams.update(config)
+        self.save_hyperparameters()

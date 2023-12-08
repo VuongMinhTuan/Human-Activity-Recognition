@@ -151,8 +151,12 @@ class DataPreprocessing:
 
 
     def __call__(self, save_folder: str= None):
-        if not os.path.exists(os.path.join(self.dataset_dir, "train")):
-            return self.auto(save_folder)
+        if not save_folder is None:
+            if not os.path.exists(os.path.join(self.save_dir, f"{save_folder}/train")):
+                return self.auto(save_folder)
+        else:
+            if not os.path.exists(os.path.join(self.save_dir, "dataset/train")):
+                return self.auto(save_folder)
         
         print("\n[bold][red]The Dataset is processed!!!")
         
