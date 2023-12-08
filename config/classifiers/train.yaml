@@ -66,4 +66,4 @@ trainer:
   checkpoint: null
 
   # Precision handling
-  precision: bf16-mixed
+  precision: null

@@ -50,7 +50,7 @@ class LitModule(LightningModule):
         return (self.optimizer, self.scheduler)
     
 
-    def log(self, stage: str, loss, y_hat, y):
+    def _log(self, stage: str, loss, y_hat, y):
         acc = accuracy(
             preds= y_hat,
             target= y,
@@ -78,7 +78,7 @@ class LitModule(LightningModule):
         y_hat = self(X)
         loss = self.criterion(y_hat, y)
 
-        self.log("validation", loss, y_hat, y)
+        self._log("validation", loss, y_hat, y)
 
 
     def test_step(self, batch, batch_idx):
@@ -86,7 +86,7 @@ class LitModule(LightningModule):
         y_hat = self(X)
         loss = self.criterion(y_hat, y)
 
-        self.log("test", loss, y_hat, y)
+        self._log("test", loss, y_hat, y)
 
 
     # Load checkpoint

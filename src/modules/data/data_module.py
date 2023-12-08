@@ -96,7 +96,8 @@ class DataModule(LightningDataModule):
         return DataLoader(
             dataset= self.train_dataset,
             **self.loader,
-            shuffle= True
+            shuffle= True,
+            persistent_workers= True
         )
     
     # Validation dataset loader
@@ -111,5 +112,6 @@ class DataModule(LightningDataModule):
     def test_dataloader(self):
         return DataLoader(
             dataset= self.test_dataset,
-            **self.loader
+            **self.loader,
+            persistent_workers= True
         )
