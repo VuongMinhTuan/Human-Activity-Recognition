@@ -4,7 +4,6 @@ from typing import Dict, List, Tuple, Union
 
 
 
-
 # Load the configuration
 def load_yaml(path: str) -> Dict:
     if not os.path.exists(path):

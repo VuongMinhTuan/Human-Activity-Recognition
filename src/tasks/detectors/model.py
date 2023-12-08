@@ -35,7 +35,7 @@ class Detector:
         if self.task == "track":
             results = self.predict(source= source, stream= stream, predictor= predictor, **kwargs)
         else:
-            results = self.track(source= source, stream= stream, persist= True **kwargs)
+            results = self.track(source= source, stream= stream, persist= persist, **kwargs)
 
         return results
 

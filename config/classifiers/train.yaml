@@ -1,0 +1,20 @@
+### This file contains configuration for Trainer ###
+
+
+# Set global seed
+set_seed: 42
+
+# Batch size of dataset
+batch_size: 156
+
+# Learning rate for training
+learning_rate: 0.0000001
+
+# Number of epoches for training
+num_epoch: 100
+
+# Check if load the trained model
+checkpoint: null
+
+# Precision handling
+precision: bf16-mixed

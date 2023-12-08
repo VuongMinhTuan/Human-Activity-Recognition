@@ -3,7 +3,7 @@ from typing import List, Tuple, Union
 from pathlib import Path
 from PIL import Image
 from rich import print
-from src.modules.utils import tuple_handler
+from src.modules.utils import tuple_handler, workers_handler
 from tqdm.contrib.concurrent import process_map
 
 
@@ -125,22 +125,43 @@ class VideoProcessing:
 
 
 class DataPreprocessing:
-    def __init__(self, **kwargs):
-        self.cfg = kwargs
+    def __init__(
+        self,
+        dataset_dir: str,
+        save_dir: str,
+        ratio: Tuple[float, float, float] = (0.7, 0.15, 0.15),
+        image_size: Tuple[int, int] | int = (224, 224),
+        sampling_value: int = 0,
+        max_frame: int = 0,
+        min_frame: int = 0,
+        num_workers: int = 0,
+    ):
+        
+        self.dataset_dir = dataset_dir
+        self.save_dir = save_dir
+        self.ratio = ratio
+        self.image_size = image_size
+        self.sampling_value = sampling_value
+        self.max_frame = max_frame
+        self.min_frame = min_frame
+        self.num_workers = workers_handler(num_workers)
+        self.image_extensions = [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"]
+        self.video_extensions = [".mp4", ".avi", ".mkv", ".mov", ".flv", ".mpg"]
+        
 
 
     def __call__(self, save_folder: str= None):
-        if os.path.exists(os.path.join(self.cfg['dataset_dir'], "train")):
-            raise RuntimeError("The Dataset is processed!!!")
+        if not os.path.exists(os.path.join(self.dataset_dir, "train")):
+            return self.auto(save_folder)
         
-        return self.auto(save_folder)
+        print("\n[bold][red]The Dataset is processed!!!")
+        
     
 
     # Classes of dataset
     @property
     def classes(self):
-        return sorted(os.listdir(self.cfg['dataset_dir']))
-            
+        return sorted(os.listdir(self.dataset_dir))
     
 
     # Process image
@@ -151,8 +172,8 @@ class DataPreprocessing:
 
         result = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        if self.cfg['image_size']:
-            result = ImageProcessing.resize(image, self.cfg['image_size'])
+        if self.image_size:
+            result = ImageProcessing.resize(image, self.image_size)
 
         result = ImageProcessing.add_border(image)
 
@@ -176,10 +197,10 @@ class DataPreprocessing:
             [
                 int(
                     min(
-                        [os.listdir(Path("C:/Tuan/Documents/test/image").joinpath(cls)).__len__() for cls in self.classes]
+                        [os.listdir(Path(self.dataset_dir).joinpath(cls)).__len__() for cls in self.classes]
                     ) * r
                 )
-                for r in self.cfg['ratio'][1:]
+                for r in self.ratio[1:]
             ]
         )
         
@@ -204,17 +225,17 @@ class DataPreprocessing:
     def process_video(self, path: str) -> List[np.ndarray]:
         video = VideoProcessing.load(path)
 
-        if self.cfg['sampling_value'] != 0:
-            video = VideoProcessing.sampling(np.array(video), self.cfg['sampling_value'])
+        if self.sampling_value != 0:
+            video = VideoProcessing.sampling(np.array(video), self.sampling_value)
         
-        if self.cfg['max_frame'] != 0:
-            video = VideoProcessing.truncating(np.array(video), self.cfg['max_frame'])
+        if self.max_frame != 0:
+            video = VideoProcessing.truncating(np.array(video), self.max_frame)
         
-        if self.cfg['min_frame'] != 0:
-            video = VideoProcessing.padding(np.array(video), self.cfg['min_frame'])
+        if self.min_frame != 0:
+            video = VideoProcessing.padding(np.array(video), self.min_frame)
         
-        if self.cfg['image_size']:
-            video = VideoProcessing.resize(np.array(video), self.cfg['image_size'])
+        if self.image_size:
+            video = VideoProcessing.resize(np.array(video), self.image_size)
         
         return video
     
@@ -229,7 +250,7 @@ class DataPreprocessing:
         file_name = Path(path).stem
 
         # Create destination path
-        dst_path = Path(self.cfg["save_dir"])
+        dst_path = Path(self.save_dir)
 
         # Process dataset
         video = self.process_video(path)
@@ -245,29 +266,22 @@ class DataPreprocessing:
     
     # Check file is video or image
     def check_format(self):
-        return "video" if Path(os.listdir(self.cfg['dataset_dir'])[0]).suffix in self.cfg['video_extensions'] else "image"
+        return "video" if Path(os.listdir(self.dataset_dir)[0]).suffix in self.video_extensions else "image"
 
 
     def auto(self, save_folder: str= None):
         # Create folder for images of dataset
         if save_folder is None:
-            self.cfg["save_dir"] = str(Path(self.cfg["save_dir"]).joinpath(self.cfg['folder_name'] + "_images"))
-            os.makedirs(self.cfg["save_dir"], exist_ok= True)
+            self.save_dir = str(Path(self.save_dir).joinpath("dataset"))
+            os.makedirs(self.save_dir, exist_ok= True)
         else:
-            self.cfg["save_dir"] = str(Path(self.cfg["save_dir"]).joinpath(save_folder))
-            os.makedirs(self.cfg["save_dir"], exist_ok= True)
-
-
-        # Process summary
-        print(f"\n[bold]Summary:[/]")
-        print(f"  Number of workers: {self.cfg['num_workers']}")
-        print(f"  Data path: [green]{self.cfg['dataset_dir']}[/]")
-        print(f"  Save path: [green]{self.cfg['save_dir']}[/]")
+            self.save_dir = str(Path(self.save_dir).joinpath(save_folder))
+            os.makedirs(self.save_dir, exist_ok= True)
 
 
         # Calcute chunksize base on cpu parallel power
         benchmark = lambda x: max(
-            1, round(len(x) / (self.cfg['num_workers'] * psutil.cpu_freq().max / 1000) / 4)
+            1, round(len(x) / (self.num_workers * psutil.cpu_freq().max / 1000) / 4)
         )
 
 
@@ -278,8 +292,8 @@ class DataPreprocessing:
             image_paths = [
                 str(image)
                 for cls in self.classes
-                for ext in self.cfg['image_extensions']
-                for image in Path(self.cfg['dataset_dir']).joinpath(cls).rglob("*" + ext)
+                for ext in self.image_extensions
+                for image in Path(self.dataset_dir).joinpath(cls).rglob("*" + ext)
             ]
 
 
@@ -287,20 +301,20 @@ class DataPreprocessing:
             process_map(
                 self.process_image,
                 image_paths,
-                max_workers= self.cfg['num_workers'],
+                max_workers= self.num_workers,
                 chunksize= benchmark(image_paths)
             )
 
             print("\n[bold][green]Processing data successfully!!!")
 
             # Split dataset
-            if self.split_data(self.cfg['dataset_dir'], self.cfg['save_dir']):
+            if self.split_data(self.dataset_dir, self.save_dir):
                 print("\n[bold][green]Splitting dataset successfully!!!")
         else:
             video_paths = [
                 str(video)
-                for ext in self.cfg['video_extensions']
-                for video in Path(self.cfg['dataset_dir']).rglob("*" + ext)
+                for ext in self.video_extensions
+                for video in Path(self.dataset_dir).rglob("*" + ext)
             ]
 
             
@@ -308,7 +322,7 @@ class DataPreprocessing:
             process_map(
                 self.generate_frame,
                 video_paths,
-                max_workers= self.cfg['num_workers'],
+                max_workers= self.num_workers,
                 chunksize= benchmark(video_paths)
             )
 

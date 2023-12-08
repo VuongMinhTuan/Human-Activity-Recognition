@@ -1,0 +1,20 @@
+### This file contains configuration for Data Moudule ###
+
+
+# Directory for loading dataset
+dataset_dir: C:/Tuan/Documents/dataset
+
+# Level of dataset tranformation
+argument_level: 0
+
+# Size of image
+image_size: [224, 224]
+
+# Number of samples processed before the model is updated
+batch_size: 32
+
+# Number of cpu units
+num_workers: 8
+
+# Push dataset to GPU during the training
+pin_memory: True

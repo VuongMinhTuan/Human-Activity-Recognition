@@ -1,0 +1,5 @@
+### This file contains configuration for Scheduler ###
+
+
+warmup_epochs: 10
+start_factor: 0.01

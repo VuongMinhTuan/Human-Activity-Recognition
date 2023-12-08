@@ -1,22 +1,14 @@
-### This folder contains configuration###
+### This file contains configuration for Data Preprocessing ###
 
-# Name of dataset
-folder_name: image
 
 # Directory for loading dataset
-dataset_dir: C:\Tuan\Documents\test\image
+dataset_dir: C:/Tuan/Documents/CoffeeStore
 
 # Directory for saving results after processing dataset
-save_dir: C:\Tuan\Documents\test
+save_dir: C:/Tuan/Documents
 
 # Ratio for spliting dataset
 ratio: [0.7, 0.15, 0.15]
-
-# Extensions of image
-image_extensions: [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"]
-
-# Extensions of video
-video_extensions: [".mp4", ".avi", ".mkv", ".mov", ".flv", ".mpg"]
 
 # Size of image
 image_size: [224, 224]
@@ -31,4 +23,4 @@ min_frame: 0
 max_frame: 0
 
 # Number of units for precessing
-num_workers: 8
+num_workers: 4

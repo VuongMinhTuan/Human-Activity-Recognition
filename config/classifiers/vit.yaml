@@ -1,0 +1,17 @@
+### This file contains configuration for Vision Transformer model ###
+
+
+# Version of model
+version: "B_32"
+
+# Ratio for droping out neurals
+dropout: 0.0
+
+# Ratio for droping out neural in attention layer
+attention_dropout: 0.0
+
+# Check model if is pretrained
+pretrained: True
+
+# Freeze features layer
+freeze: False

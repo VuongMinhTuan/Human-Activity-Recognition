@@ -10,6 +10,9 @@ torchmetrics>=1.2.0
 # yolo-v8
 ultralytics>=8.0.2
 
+# logger
+tensorboard==2.11.0
+
 # image
 opencv-python>=4.8.0
 
