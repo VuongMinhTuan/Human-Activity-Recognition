@@ -2,10 +2,10 @@
 
 
 # Directory for loading dataset
-dataset_dir: C:/Tuan/Documents/CoffeeStore
+dataset_dir: C:/Tuan/GitHub/Human-Activity-Recognition/data/image/CoffeeStore
 
 # Directory for saving results after processing dataset
-save_dir: C:/Tuan/Documents
+save_dir: C:/Tuan/GitHub/Human-Activity-Recognition/data/image
 
 # Ratio for spliting dataset
 ratio: [0.7, 0.15, 0.15]

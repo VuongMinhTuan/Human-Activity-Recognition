@@ -32,7 +32,7 @@ class Detector:
             LOGGER.warning(f"WARNING ⚠️ {self.task} is invalid!!! Only 'track' and 'detect are supported'")
 
 
-        if self.task == "track":
+        if self.task == "track" or self.task is None:
             results = self.predict(source= source, stream= stream, predictor= predictor, **kwargs)
         else:
             results = self.track(source= source, stream= stream, persist= persist, **kwargs)

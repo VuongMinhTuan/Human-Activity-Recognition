@@ -2,7 +2,7 @@
 
 
 # Directory for loading dataset
-dataset_dir: C:/Tuan/Documents/dataset
+dataset_dir: C:/Tuan/GitHub/Human-Activity-Recognition/data/image/dataset
 
 # Level of dataset tranformation
 argument_level: 0
