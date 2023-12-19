@@ -69,7 +69,7 @@ class LitModule(LightningModule):
         X, y = batch
         y_hat = self(X)
         loss = self.criterion(y_hat, y)
-        self._log("validation", loss, y_hat, y)
+        self._log("train", loss, y_hat, y)
         
         return loss
     
@@ -79,7 +79,7 @@ class LitModule(LightningModule):
         y_hat = self(X)
         loss = self.criterion(y_hat, y)
 
-        self._log("validation", loss, y_hat, y)
+        self._log("val", loss, y_hat, y)
 
 
     def test_step(self, batch, batch_idx):

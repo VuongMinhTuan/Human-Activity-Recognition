@@ -32,18 +32,21 @@ class DataModule(LightningDataModule):
         }
 
 
-        # Load configuration for preprocessing dataset
-        with open("C:/Tuan/GitHub/Human-Activity-Recognition/config/data/preprocessing.yaml", 'r') as file:
-            preprocess_cfg = yaml.safe_load(file)
+        # # Load configuration for preprocessing dataset
+        # with open("C:/Tuan/GitHub/Human-Activity-Recognition/config/data/preprocessing.yaml", 'r') as file:
+        #     preprocess_cfg = yaml.safe_load(file)
 
         
-        # Preprocessing dataset
-        preprocess = DataPreprocessing(**preprocess_cfg)
-        preprocess("dataset")
-
-        # Classes of datatset
-        self.classes = preprocess.classes
+        # # Preprocessing dataset
+        # preprocess = DataPreprocessing(**preprocess_cfg)
+        # preprocess("dataset")
     
+
+    # Classes of dataset
+    @property
+    def classes(self):
+        return sorted(os.listdir(os.path.join(self.dataset_dir, "train")))
+
 
     def setup(self, stage: str):
         # Check if dataset is created
@@ -103,14 +106,12 @@ class DataModule(LightningDataModule):
     def val_dataloader(self):
         return DataLoader(
             dataset= self.val_dataset,
-            **self.loader,
-            shuffle= True
+            **self.loader
         )
     
     # Test dataset loader
     def test_dataloader(self):
         return DataLoader(
             dataset= self.test_dataset,
-            **self.loader,
-            shuffle= True
+            **self.loader
         )
