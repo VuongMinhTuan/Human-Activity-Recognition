@@ -5,17 +5,20 @@ autosetup()
 from rich import traceback
 traceback.install()
 
-import torch
+import torch, hydra, shutil
 from torch import nn, optim
-from typing import Dict
+from omegaconf import DictConfig
 from src.models import VIT
-from src.modules import DataModule, LitModule, scheduler_with_warmup, load_yaml, custom_callbacks
+from src.modules import DataModule, LitModule, scheduler_with_warmup, custom_callbacks
 from lightning.pytorch import seed_everything, Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
 
 
+@hydra.main(config_path="C:/Tuan/GitHub/Human-Activity-Recognition/config/classifiers", config_name="train", version_base="1.3")
+def main(cfg: DictConfig):
+    # Remove the hydra outputs since we already have lightning logs
+    shutil.rmtree("outputs")
 
-def main(cfg: Dict):
     # Set precision
     torch.set_float32_matmul_precision("high")
 
@@ -87,5 +90,6 @@ def main(cfg: Dict):
     TRAINER.test(LIT_MODULE, DATASET)
 
 
+
 if __name__ == "__main__":
-    main(load_yaml("C:/Tuan/GitHub/Human-Activity-Recognition/config/classifiers/train.yaml"))
+    main()
