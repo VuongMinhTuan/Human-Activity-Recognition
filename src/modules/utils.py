@@ -27,10 +27,10 @@ def save_yaml(path: str, **config):
             if answer == "Y" or answer == "y" or answer == "\n":
                 break
         
-            if answer != "n" and answer != "N":
-                print("\n[bold][yellow]Wrong syntax!!!")
-            
-            return
+            if answer == "n" or answer == "N":
+                return
+                
+            print("\n[bold][yellow]Wrong syntax!!!")
         
 
     print("\n[bold][yellow]Saving configuration...[/][/]")
@@ -42,6 +42,8 @@ def save_yaml(path: str, **config):
         )
 
         yaml.dump(config, file)
+
+    file.close()
 
 
     print("\n[bold][yellow]Successfully saved configuration!!!")
