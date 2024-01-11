@@ -24,13 +24,13 @@ def save_yaml(path: str, **config):
         while True:
             answer = input("\nDo you want to overwrite this file? ([Y]/n) ")
 
-            if answer == "Y" or answer == "n" or answer == "\n":
+            if answer == "Y" or answer == "\n":
                 break
-            
+        
+        if answer != "n":
             print("\n[bold][yellow]Wrong syntax!!!")
         
-        if answer == "\n":
-            return
+        return
         
 
     print("\n[bold][yellow]Saving configuration...[/][/]")
